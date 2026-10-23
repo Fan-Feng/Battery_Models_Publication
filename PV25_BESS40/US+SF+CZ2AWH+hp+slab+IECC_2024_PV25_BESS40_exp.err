@@ -1,0 +1,20 @@
+Program Version,EnergyPlus, Version 23.1.0-87ed9199d4, YMD=2026.08.26 03:44,
+   ************* Beginning Zone Sizing Calculations
+   ** Warning ** Weather file location will be used rather than entered (IDF) Location object.
+   **   ~~~   ** ..Location object=TAMPA-MACDILL.AFB_FL_USA WMO=747880
+   **   ~~~   ** ..Weather File Location=Tampa International Ap FL USA TMY3 WMO#=722110
+   **   ~~~   ** ..due to location differences, Latitude difference=[0.12] degrees, Longitude difference=[1.00E-002] degrees.
+   **   ~~~   ** ..Time Zone difference=[0.0] hour(s), Elevation difference=[25.00] percent, [2.00] meters.
+   ** Severe  ** BuildingSurface:Detailed="FLOOR_UNIT1", invalid Outside Boundary Condition Object="SURFPROPOTHSDCOEFSLABAVERAGE".
+   **   ~~~   **  no OtherSideCoefficients of that name.
+   ** Severe  ** BuildingSurface:Detailed="FLOOR_GARAGE1", invalid Outside Boundary Condition Object="SURFPROPOTHSDCOEFSLABAVERAGE".
+   **   ~~~   **  no OtherSideCoefficients of that name.
+   **  Fatal  ** GetSurfaceData: Errors discovered, program terminates.
+   ...Summary of Errors that led to program termination:
+   ..... Reference severe error count=2
+   ..... Last severe error=BuildingSurface:Detailed="FLOOR_GARAGE1", invalid Outside Boundary Condition Object="SURFPROPOTHSDCOEFSLABAVERAGE".
+   ************* Warning:  Node connection errors not checked - most system input has not been read (see previous warning).
+   ************* Fatal error -- final processing.  Program exited before simulations began.  See previous error messages.
+   ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
+   ************* EnergyPlus Sizing Error Summary. During Sizing: 1 Warning; 2 Severe Errors.
+   ************* EnergyPlus Terminated--Fatal Error Detected. 1 Warning; 2 Severe Errors; Elapsed Time=00hr 00min  0.10sec

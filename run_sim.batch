@@ -1,0 +1,155 @@
+@echo off
+setlocal EnableExtensions EnableDelayedExpansion
+
+REM ============================================================
+REM Run EnergyPlus simulations for:
+REM   Baseline
+REM   PV25_BESS20
+REM   PV25_BESS40
+REM   PV50_BESS20
+REM   PV50_BESS40
+REM
+REM Expected structure:
+REM   run_sim.bat
+REM   Resources\*.epw
+REM   Baseline\*.idf
+REM   PV25_BESS20\*.idf
+REM   PV25_BESS40\*.idf
+REM   PV50_BESS20\*.idf
+REM   PV50_BESS40\*.idf
+REM
+REM Output is written to each case folder under:
+REM   output\
+REM ============================================================
+
+set "ROOT=%~dp0"
+cd /d "%ROOT%"
+
+REM If EnergyPlus is not in PATH, replace this with the full path.
+REM Example:
+REM set "ENERGYPLUS_EXE=C:\EnergyPlusV25-1-0\energyplus.exe"
+set "ENERGYPLUS_EXE=energyplus.exe"
+
+REM Check EnergyPlus executable
+if exist "%ENERGYPLUS_EXE%" goto :ep_found
+where "%ENERGYPLUS_EXE%" >nul 2>&1
+if errorlevel 1 (
+    echo.
+    echo ERROR: EnergyPlus executable was not found.
+    echo Edit ENERGYPLUS_EXE near the top of this file.
+    echo Example:
+    echo   set "ENERGYPLUS_EXE=C:\EnergyPlusV25-1-0\energyplus.exe"
+    echo.
+    pause
+    exit /b 1
+)
+:ep_found
+
+REM Find the first EPW file in Resources
+set "WEATHER="
+for %%W in ("%ROOT%Resources\*.epw") do (
+    if not defined WEATHER set "WEATHER=%%~fW"
+)
+
+if not defined WEATHER (
+    echo.
+    echo ERROR: No .epw weather file found in:
+    echo   "%ROOT%Resources"
+    echo.
+    pause
+    exit /b 1
+)
+
+echo ============================================================
+echo EnergyPlus batch simulation
+echo ============================================================
+echo Root folder : %ROOT%
+echo Weather file: %WEATHER%
+echo.
+
+set /a SUCCESS_COUNT=0
+set /a FAIL_COUNT=0
+
+call :RUN_CASE "Baseline"
+call :RUN_CASE "PV25_BESS20"
+call :RUN_CASE "PV25_BESS40"
+call :RUN_CASE "PV50_BESS20"
+call :RUN_CASE "PV50_BESS40"
+
+echo.
+echo ============================================================
+echo Finished.
+echo Successful: !SUCCESS_COUNT!
+echo Failed    : !FAIL_COUNT!
+echo ============================================================
+echo.
+
+if !FAIL_COUNT! GTR 0 (
+    echo Check eplusout.err in the output folder of each failed case.
+)
+
+pause
+exit /b !FAIL_COUNT!
+
+
+:RUN_CASE
+set "CASE=%~1"
+set "CASE_DIR=%ROOT%%CASE%"
+set "IDF="
+
+echo ------------------------------------------------------------
+echo Running: %CASE%
+echo ------------------------------------------------------------
+
+if not exist "%CASE_DIR%\" (
+    echo ERROR: Folder not found:
+    echo   "%CASE_DIR%"
+    echo.
+    set /a FAIL_COUNT+=1
+    exit /b
+)
+
+REM Find the first IDF file in the case folder
+for %%F in ("%CASE_DIR%\*.idf") do (
+    if not defined IDF set "IDF=%%~fF"
+)
+
+if not defined IDF (
+    echo ERROR: No .idf file found in:
+    echo   "%CASE_DIR%"
+    echo.
+    set /a FAIL_COUNT+=1
+    exit /b
+)
+
+set "OUT_DIR=%CASE_DIR%\output"
+if not exist "%OUT_DIR%" mkdir "%OUT_DIR%"
+
+echo IDF   : !IDF!
+echo Output: !OUT_DIR!
+echo.
+
+REM Run from the case directory so relative paths such as
+REM ..\Resources\file.csv work correctly.
+pushd "%CASE_DIR%"
+
+"%ENERGYPLUS_EXE%" -w "%WEATHER%" -d "%OUT_DIR%" "!IDF!"
+set "RC=!ERRORLEVEL!"
+
+popd
+
+if not "!RC!"=="0" (
+    echo.
+    echo FAILED: %CASE% ^(EnergyPlus exit code !RC!^)
+    echo Check:
+    echo   "%OUT_DIR%\eplusout.err"
+    echo.
+    set /a FAIL_COUNT+=1
+) else (
+    echo.
+    echo SUCCESS: %CASE%
+    echo.
+    set /a SUCCESS_COUNT+=1
+)
+
+exit /b

@@ -1,0 +1,19 @@
+# EnergyPlus simulation output files
+# Keeping: .csv, .idf
+
+*.ger
+*.out
+*.audit
+*.bnd
+*.eio
+*.err
+*.eso
+*.expidf
+*.mtd
+*.rvaudit
+*.slab
+*.svg
+*.html
+*.mdd
+*.rdd
+*.shd
